@@ -9,7 +9,7 @@ const { Order, OrderItem, Product } = require("../models");
 // ==================== POST /api/orders - Create Order ====================
 /**
  * @swagger
- * /api/orders:
+ * /orders:
  *   post:
  *     summary: Create a new order
  *     tags: [Orders]
