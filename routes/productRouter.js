@@ -5,6 +5,43 @@ const { auth, upload } = require("../middleware/Authmiddle");
 const { Op } = require("sequelize");
 
 
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Get all products with pagination and filters
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *           example: iphone
+ *       - in: query
+ *         name: sku
+ *         schema:
+ *           type: string
+ *           example: IPHN-001
+ *     responses:
+ *       200:
+ *         description: Products fetched successfully
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
 
 // GET /products - List all products with pagination and filters
 Router.get("/", auth(["admin", "customer"]), async (req, res) => {
@@ -46,6 +83,30 @@ Router.get("/", auth(["admin", "customer"]), async (req, res) => {
 });
 
 // ...existing code...
+/**
+ * @swagger
+ * /products/{id}:
+ *   get:
+ *     summary: Get product by ID
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 5
+ *     responses:
+ *       200:
+ *         description: Product fetched successfully
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Server error
+ */
+
 
 // GET /products/:id - Get single product
 Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
@@ -64,6 +125,54 @@ Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 });
+
+
+
+/**
+ * @swagger
+ * /products/create-product:
+ *   post:
+ *     summary: Create a new product (Admin only)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - sku
+ *               - price
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: iPhone 15
+ *               sku:
+ *                 type: string
+ *                 example: IPHN-015
+ *               price:
+ *                 type: number
+ *                 example: 79999
+ *               stock:
+ *                 type: integer
+ *                 example: 50
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Product created successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+
 
 // POST /products - Create new product (ADMIN only)
 Router.post("/create-product", auth(["admin"]), upload.single("photo"), async (req, res) => {
@@ -95,6 +204,53 @@ Router.post("/create-product", auth(["admin"]), upload.single("photo"), async (r
         res.status(500).json({ error: err.message });
     }
 });
+
+
+
+/**
+ * @swagger
+ * /products/{id}:
+ *   put:
+ *     summary: Update product details (Admin only)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 3
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Samsung Galaxy S24
+ *               sku:
+ *                 type: string
+ *                 example: SSG-024
+ *               price:
+ *                 type: number
+ *                 example: 69999
+ *               stock:
+ *                 type: integer
+ *                 example: 100
+ *     responses:
+ *       200:
+ *         description: Product updated successfully
+ *       400:
+ *         description: No fields provided
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Server error
+ */
 
 // PUT /products/:id - Update product (ADMIN only)
 Router.put("/:id", auth(["admin"]), async (req, res) => {
@@ -143,6 +299,32 @@ Router.put("/:id", auth(["admin"]), async (req, res) => {
 }
 );
 
+
+
+
+/**
+ * @swagger
+ * /products/{id}:
+ *   delete:
+ *     summary: Delete a product (Admin only)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 7
+ *     responses:
+ *       200:
+ *         description: Product deleted successfully
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Server error
+ */
 
 // DELETE /products/:id - Delete product (ADMIN only)
 Router.delete("/:id", auth(["admin"]), async (req, res) => {

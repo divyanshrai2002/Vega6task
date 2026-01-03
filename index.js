@@ -5,11 +5,16 @@ const path = require("path");
 const authRouter = require("./routes/authRouter");
 const productRouter = require("./routes/productRouter");
 const orderRouter = require("./routes/OrderRouter");
+const swaggerUI = require("swagger-ui-express");
+const swaggerSpec = require("./Swagger/Swagger");
 
 
 dotenv.config();
 
 const app = express();
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+
 
 // Middleware
 app.use(express.json());

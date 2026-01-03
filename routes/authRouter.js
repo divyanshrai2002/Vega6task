@@ -9,9 +9,49 @@ const { auth } = require("../middleware/Authmiddle");
 
 dotenv.config();
 
-const otpStore = {}; // In-memory store for demo
+const otpStore = {};
 
 // POST /auth/register
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - role
+ *               - email
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: divyansh
+ *               role:
+ *                 type: string
+ *                 example: customer
+ *               adminId:
+ *                 type: string
+ *                 example: ADMIN123
+ *               email:
+ *                 type: string
+ *                 example: test@gmail.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: Validation error
+ */
+
 Router.post("/register", async (req, res) => {
     try {
         const { username, role, adminId, email, password } = req.body;
@@ -54,6 +94,69 @@ Router.post("/register", async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 });
+
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login user and get JWT token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: test@gmail.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Login successful
+ *                 token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     username:
+ *                       type: string
+ *                       example: divyansh
+ *                     email:
+ *                       type: string
+ *                       example: test@gmail.com
+ *                     role:
+ *                       type: string
+ *                       example: customer
+ *       400:
+ *         description: Email and password required
+ *       401:
+ *         description: Invalid email or password
+ *       500:
+ *         description: Server error
+ */
+
 
 // POST /auth/login
 Router.post("/login", async (req, res) => {
@@ -105,6 +208,56 @@ Router.post("/login", async (req, res) => {
     }
 });
 
+
+/**
+ * @swagger
+ * /auth/me:
+ *   get:
+ *     summary: Get current logged-in user info
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User info retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     username:
+ *                       type: string
+ *                       example: divyansh
+ *                     email:
+ *                       type: string
+ *                       example: test@gmail.com
+ *                     role:
+ *                       type: string
+ *                       example: customer
+ *                     adminId:
+ *                       type: string
+ *                       nullable: true
+ *                       example: null
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         description: Unauthorized (missing or invalid token)
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+
 // GET /auth/me - Get current user info
 Router.get("/me", auth(["admin", "customer"]), async (req, res) => {
     try {
@@ -131,6 +284,8 @@ Router.get("/me", auth(["admin", "customer"]), async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+
 
 // POST /auth/send-otp
 Router.post("/send-otp", async (req, res) => {
@@ -163,6 +318,7 @@ Router.post("/send-otp", async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to send OTP", error: err.message });
     }
 });
+
 
 // POST /auth/verify-otp
 Router.post("/verify-otp", (req, res) => {

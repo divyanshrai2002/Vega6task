@@ -7,6 +7,49 @@ const { auth } = require("../middleware/Authmiddle");
 const { Order, OrderItem, Product } = require("../models");
 
 // ==================== POST /api/orders - Create Order ====================
+/**
+ * @swagger
+ * /api/orders:
+ *   post:
+ *     summary: Create a new order
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - items
+ *             properties:
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - productId
+ *                     - quantity
+ *                   properties:
+ *                     productId:
+ *                       type: integer
+ *                       example: 1
+ *                     quantity:
+ *                       type: integer
+ *                       example: 2
+ *     responses:
+ *       201:
+ *         description: Order created successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+
+
 Router.post("/", auth(["admin", "customer"]), async (req, res) => {
     try {
         const { items } = req.body;
@@ -104,6 +147,38 @@ Router.post("/", auth(["admin", "customer"]), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/orders:
+ *   get:
+ *     summary: Get all orders (admin) or user orders (customer)
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           example: PENDING
+ *     responses:
+ *       200:
+ *         description: Orders retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
 
 //   List Orders
 Router.get("/", auth(["admin", "customer"]), async (req, res) => {
@@ -158,6 +233,31 @@ Router.get("/", auth(["admin", "customer"]), async (req, res) => {
         });
     }
 });
+/**
+ * @swagger
+ * /api/orders/{id}:
+ *   get:
+ *     summary: Get a single order by ID
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 5
+ *     responses:
+ *       200:
+ *         description: Order retrieved successfully
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Order not found
+ *       500:
+ *         description: Server error
+ */
 
 
 // Get Single Order
@@ -204,6 +304,46 @@ Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/orders/{id}/status:
+ *   patch:
+ *     summary: Update order status
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 3
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [PENDING, PAID, CANCELLED]
+ *                 example: CANCELLED
+ *     responses:
+ *       200:
+ *         description: Order status updated
+ *       400:
+ *         description: Invalid status
+ *       403:
+ *         description: Unauthorized
+ *       404:
+ *         description: Order not found
+ *       500:
+ *         description: Server error
+ */
 
 // PATCH /api/orders/:id/status
 Router.patch("/:id/status", auth(["admin", "customer"]), async (req, res) => {
