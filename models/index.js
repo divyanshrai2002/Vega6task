@@ -5,7 +5,7 @@ const Product = require("./ProductSchema");
 const Order = require("./OrderSchema");
 const OrderItem = require("./OrderItemSchema");
 
-/* ================= USER ↔ ORDER ================= */
+// USER- ORDER 
 User.hasMany(Order, {
     foreignKey: "user_id",
     as: "orders",
@@ -17,7 +17,7 @@ Order.belongsTo(User, {
     as: "user"
 });
 
-/* ================= ORDER ↔ ORDER ITEM ================= */
+// ORDER - ORDER ITEM 
 Order.hasMany(OrderItem, {
     foreignKey: "order_id",
     as: "items",
@@ -29,7 +29,7 @@ OrderItem.belongsTo(Order, {
     as: "order"
 });
 
-/* ================= PRODUCT ↔ ORDER ITEM ================= */
+// PRODUCT-- ORDER ITEM 
 Product.hasMany(OrderItem, {
     foreignKey: "product_id",
     as: "orderItems"
@@ -40,6 +40,16 @@ OrderItem.belongsTo(Product, {
     as: "product"
 });
 
+const syncDB = async () => {
+    try {
+        await sequelize.sync({ alter: false });
+        console.log(" All models synced successfully");
+    } catch (error) {
+        console.error(" Sync failed:", error);
+    }
+};
+
+syncDB();
 module.exports = {
     sequelize,
     User,
