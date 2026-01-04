@@ -159,9 +159,7 @@ Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
  *               stock:
  *                 type: integer
  *                 example: 50
- *               photo:
- *                 type: string
- *                 format: binary
+ *          
  *     responses:
  *       200:
  *         description: Product created successfully

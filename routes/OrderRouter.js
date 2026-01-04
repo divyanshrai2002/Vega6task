@@ -1,6 +1,7 @@
 const express = require("express");
 const Router = express.Router();
 const { auth } = require("../middleware/Authmiddle");
+const {rateLimit} = require("express-rate-limit");
 // const Order = require("../models/OrderSchema");
 // const OrderItem = require("../models/OrderItemSchema");
 // const Product = require("../models/ProductSchema");
@@ -48,8 +49,11 @@ const { Order, OrderItem, Product } = require("../models");
  *       500:
  *         description: Server error
  */
-
-
+const Limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 5,
+  message: "Too many  attempts, try again later"
+});
 Router.post("/", auth(["admin", "customer"]), async (req, res) => {
     try {
         const { items } = req.body;
@@ -149,7 +153,7 @@ Router.post("/", auth(["admin", "customer"]), async (req, res) => {
 
 /**
  * @swagger
- * /api/orders:
+ * /orders:
  *   get:
  *     summary: Get all orders (admin) or user orders (customer)
  *     tags: [Orders]
@@ -181,7 +185,7 @@ Router.post("/", auth(["admin", "customer"]), async (req, res) => {
  */
 
 //   List Orders
-Router.get("/", auth(["admin", "customer"]), async (req, res) => {
+Router.get("/",Limiter, auth(["admin", "customer"]), async (req, res) => {
     try {
         const { page = 1, limit = 10, status } = req.query;
         const offset = (page - 1) * limit;
@@ -233,9 +237,12 @@ Router.get("/", auth(["admin", "customer"]), async (req, res) => {
         });
     }
 });
+
+
+
 /**
  * @swagger
- * /api/orders/{id}:
+ * /orders/{id}:
  *   get:
  *     summary: Get a single order by ID
  *     tags: [Orders]
@@ -306,7 +313,7 @@ Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
 
 /**
  * @swagger
- * /api/orders/{id}/status:
+ * /orders/{id}/status:
  *   patch:
  *     summary: Update order status
  *     tags: [Orders]
@@ -345,7 +352,7 @@ Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
  *         description: Server error
  */
 
-// PATCH /api/orders/:id/status
+// PATCH /orders/:id/status
 Router.patch("/:id/status", auth(["admin", "customer"]), async (req, res) => {
     try {
         const { status } = req.body;

@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const { auth } = require("../middleware/Authmiddle");
+const {rateLimit} = require("express-rate-limit");
 
 dotenv.config();
 
@@ -51,8 +52,12 @@ const otpStore = {};
  *       400:
  *         description: Validation error
  */
-
-Router.post("/register", async (req, res) => {
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 2,
+  message: "Too many attempts, try again later"
+});
+Router.post("/register",limiter, async (req, res) => {
     try {
         const { username, role, adminId, email, password } = req.body;
 
@@ -159,7 +164,7 @@ Router.post("/register", async (req, res) => {
 
 
 // POST /auth/login
-Router.post("/login", async (req, res) => {
+Router.post("/login",limiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -259,7 +264,7 @@ Router.post("/login", async (req, res) => {
  */
 
 // GET /auth/me - Get current user info
-Router.get("/me", auth(["admin", "customer"]), async (req, res) => {
+Router.get("/me",limiter,auth(["admin", "customer"]), async (req, res) => {
     try {
         const user = await User.findByPk(req.user.id, {
             attributes: { exclude: ['password'] }

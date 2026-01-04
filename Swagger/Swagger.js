@@ -4,13 +4,13 @@ const options = {
     definition: {
         openapi: "3.0.0",
         info: {
-            title: "Vega6 API Documentation",
+            title: "Vega6-Assignment API Documentation",
             version: "1.0.0",
             description: "API documentation for Orders, Products, Users"
         },
         servers: [
             {
-                url: "http://localhost:3000", // change port if needed
+                url: "http://localhost:3000", 
             }
         ],
         components: {
@@ -28,7 +28,7 @@ const options = {
             }
         ]
     },
-    apis: ["./routes/*.js"], // scan route files
+    apis: ["./routes/*.js"], 
 };
 
 module.exports = swaggerJsdoc(options);
