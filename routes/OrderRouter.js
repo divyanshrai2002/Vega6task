@@ -1,13 +1,13 @@
 const express = require("express");
 const Router = express.Router();
-const { auth } = require("../middleware/Authmiddle");
+const  auth  = require("../middleware/Authmiddle");
 const {rateLimit} = require("express-rate-limit");
 // const Order = require("../models/OrderSchema");
 // const OrderItem = require("../models/OrderItemSchema");
 // const Product = require("../models/ProductSchema");
 const { Order, OrderItem, Product } = require("../models");
 
-// ==================== POST /api/orders - Create Order ====================
+
 /**
  * @swagger
  * /orders:
@@ -54,6 +54,7 @@ const Limiter = rateLimit({
   max: 5,
   message: "Too many  attempts, try again later"
 });
+//create new order
 Router.post("/", auth(["admin", "customer"]), async (req, res) => {
     try {
         const { items } = req.body;
@@ -352,7 +353,7 @@ Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
  *         description: Server error
  */
 
-// PATCH /orders/:id/status
+// change status of order
 Router.patch("/:id/status", auth(["admin", "customer"]), async (req, res) => {
     try {
         const { status } = req.body;

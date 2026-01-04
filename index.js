@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const path = require("path");
+// const path = require("path");
 const authRouter = require("./routes/authRouter");
 const productRouter = require("./routes/productRouter");
 const orderRouter = require("./routes/OrderRouter");
@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Serve static files for product photos
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
 // API Routes

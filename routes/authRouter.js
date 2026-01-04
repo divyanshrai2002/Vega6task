@@ -5,7 +5,7 @@ const Router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
-const { auth } = require("../middleware/Authmiddle");
+const  auth  = require("../middleware/Authmiddle");
 const {rateLimit} = require("express-rate-limit");
 
 dotenv.config();
@@ -199,13 +199,13 @@ Router.post("/login",limiter, async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Login successful",
-            token,
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role
-            }
+            token
+            // user: {
+            //     id: user.id,
+            //     username: user.username,
+            //     email: user.email,
+            //     role: user.role
+            // }
         });
 
     } catch (error) {
@@ -263,7 +263,7 @@ Router.post("/login",limiter, async (req, res) => {
  *         description: Server error
  */
 
-// GET /auth/me - Get current user info
+//  Get current user information 
 Router.get("/me",limiter,auth(["admin", "customer"]), async (req, res) => {
     try {
         const user = await User.findByPk(req.user.id, {
@@ -292,7 +292,7 @@ Router.get("/me",limiter,auth(["admin", "customer"]), async (req, res) => {
 
 
 
-// POST /auth/send-otp
+
 Router.post("/send-otp", async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ success: false, message: "Email required" });
@@ -325,7 +325,7 @@ Router.post("/send-otp", async (req, res) => {
 });
 
 
-// POST /auth/verify-otp
+
 Router.post("/verify-otp", (req, res) => {
     const { email, otp } = req.body;
     if (!email || !otp) return res.status(400).json({ success: false, message: "Email & OTP required" });

@@ -6,7 +6,7 @@ const path = require("path");
 dotenv.config();
 
 // Auth middleware
-const auth = (allowedRoles = []) => {
+ const auth = (allowedRoles = []) => {
     return (req, res, next) => {
         const authHeader = req.headers.authorization;
         if (!authHeader) return res.status(401).json({ message: "No token provided" });
@@ -32,11 +32,12 @@ const auth = (allowedRoles = []) => {
     };
 };
 
-// Multer setup
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, "uploads/"),
-    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage });
+// // Multer setup
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => cb(null, "uploads/"),
+//     filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+// });
+// const upload = multer({ storage });
 
-module.exports = { auth, upload };
+// module.exports =  auth;
+module.exports=auth;

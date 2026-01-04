@@ -1,7 +1,7 @@
 const express = require("express");
 const Product = require("../models/ProductSchema");
 const Router = express.Router();
-const { auth, upload } = require("../middleware/Authmiddle");
+const auth = require("../middleware/Authmiddle");
 const { Op } = require("sequelize");
 
 
@@ -43,7 +43,7 @@ const { Op } = require("sequelize");
  *         description: Server error
  */
 
-// GET /products - List all products with pagination and filters
+// List all products with pagination and filters
 Router.get("/", auth(["admin", "customer"]), async (req, res) => {
     try {
         const { page = 1, limit = 10, name, sku } = req.query;
@@ -82,7 +82,7 @@ Router.get("/", auth(["admin", "customer"]), async (req, res) => {
     }
 });
 
-// ...existing code...
+
 /**
  * @swagger
  * /products/{id}:
@@ -108,7 +108,7 @@ Router.get("/", auth(["admin", "customer"]), async (req, res) => {
  */
 
 
-// GET /products/:id - Get single product
+//  Get single product
 Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
     try {
         const { id } = req.params;
@@ -172,13 +172,13 @@ Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
  */
 
 
-// POST /products - Create new product (ADMIN only)
-Router.post("/create-product", auth(["admin"]), upload.single("photo"), async (req, res) => {
+//  Create new product (ADMIN only)
+Router.post("/create-product", auth(["admin"]),  async (req, res) => {
     try {
         const { name, price, sku, stock } = req.body;
 
-        if (!name || !sku || !price) {
-            return res.status(400).json({ success: false, message: "Name,sku and price are required" });
+        if (!name || !sku || !price || !stock) {
+            return res.status(400).json({ success: false, message: "Name,sku,price and stock are required" });
         }
 
         const productData = {
@@ -189,10 +189,10 @@ Router.post("/create-product", auth(["admin"]), upload.single("photo"), async (r
 
         };
 
-        // Only add photo if file was uploaded
-        if (req.file) {
-            productData.product_photo = req.file.filename;
-        }
+        // // Only add photo if file was uploaded
+        // if (req.file) {
+        //     productData.product_photo = req.file.filename;
+        // }
 
         const product = await Product.create(productData);
 
@@ -324,7 +324,7 @@ Router.put("/:id", auth(["admin"]), async (req, res) => {
  *         description: Server error
  */
 
-// DELETE /products/:id - Delete product (ADMIN only)
+//  Delete product (ADMIN only)
 Router.delete("/:id", auth(["admin"]), async (req, res) => {
     try {
         const { id } = req.params;
