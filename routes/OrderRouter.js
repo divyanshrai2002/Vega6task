@@ -1,7 +1,8 @@
 const express = require("express");
 const Router = express.Router();
-const  auth  = require("../middleware/Authmiddle");
-const {rateLimit} = require("express-rate-limit");
+const auth = require("../middleware/Authmiddle");
+const { rateLimit } = require("express-rate-limit");
+const axios = require("axios");
 // const Order = require("../models/OrderSchema");
 // const OrderItem = require("../models/OrderItemSchema");
 // const Product = require("../models/ProductSchema");
@@ -50,9 +51,9 @@ const { Order, OrderItem, Product } = require("../models");
  *         description: Server error
  */
 const Limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 5,
-  message: "Too many  attempts, try again later"
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 5,
+    message: "Too many  attempts, try again later"
 });
 //create new order
 Router.post("/", auth(["admin", "customer"]), async (req, res) => {
@@ -186,7 +187,7 @@ Router.post("/", auth(["admin", "customer"]), async (req, res) => {
  */
 
 //   List Orders
-Router.get("/",Limiter, auth(["admin", "customer"]), async (req, res) => {
+Router.get("/", Limiter, auth(["admin", "customer"]), async (req, res) => {
     try {
         const { page = 1, limit = 10, status } = req.query;
         const offset = (page - 1) * limit;
@@ -239,7 +240,83 @@ Router.get("/",Limiter, auth(["admin", "customer"]), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /orders/exchange-rate:
+ *   get:
+ *     summary: Convert currency (INR to USD)
+ *     tags: [Currency]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: amount
+ *         required: true
+ *         schema:
+ *           type: number
+ *           example: 1000
+ *       - in: query
+ *         name: from
+ *         schema:
+ *           type: string
+ *           example: INR
+ *       - in: query
+ *         name: to
+ *         schema:
+ *           type: string
+ *           example: USD
+ *     responses:
+ *       200:
+ *         description: Conversion successful
+ *       401:
+ *         description: Unauthorized
+ *       429:
+ *         description: Too many requests
+ *       500:
+ *         description: Server error
+ */
 
+
+// GET /currency/convert
+Router.get(
+    "/exchange-rate",
+    auth(["admin", "customer"]),
+    Limiter,
+    async (req, res) => {
+        try {
+            const { amount, from = "INR", to = "USD" } = req.query;
+
+            if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Valid amount is required"
+                });
+            }
+
+            const response = await axios.get(
+                `https://api.exchangerate-api.com/v4/latest/${from}`
+            );
+
+            const rate = response.data.rates[to];
+            const converted = (amount * rate).toFixed(2);
+
+            res.json({
+                success: true,
+                from,
+                to,
+                amount,
+                converted,
+                rate
+            });
+        } catch (err) {
+            console.error("EXCHANGE RATE ERROR:", err.message);
+            res.status(500).json({
+                success: false,
+                message: "Server Error",
+                error: err.message
+            });
+        }
+    })
 
 /**
  * @swagger
@@ -413,5 +490,9 @@ Router.patch("/:id/status", auth(["admin", "customer"]), async (req, res) => {
         });
     }
 });
+
+
+
+
 
 module.exports = Router;

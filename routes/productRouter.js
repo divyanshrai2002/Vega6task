@@ -53,7 +53,7 @@ Router.get("/", auth(["admin", "customer"]), async (req, res) => {
         // Build where clause for filters
         const where = {};
         if (name) {
-            where.product_name = { [Op.like]: `%${name}%` };
+            where.name = { [Op.like]: `%${name}%` };
         }
         if (sku) {
             where.sku = { [Op.like]: `%${sku}%` };
@@ -81,52 +81,6 @@ Router.get("/", auth(["admin", "customer"]), async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 });
-
-
-/**
- * @swagger
- * /products/{id}:
- *   get:
- *     summary: Get product by ID
- *     tags: [Products]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *           example: 5
- *     responses:
- *       200:
- *         description: Product fetched successfully
- *       404:
- *         description: Product not found
- *       500:
- *         description: Server error
- */
-
-
-//  Get single product
-Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const product = await Product.findByPk(id);
-
-        if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found" });
-        }
-
-        res.json({ success: true, product });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ success: false, message: "Server Error" });
-    }
-});
-
-
 
 /**
  * @swagger
@@ -173,7 +127,7 @@ Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
 
 
 //  Create new product (ADMIN only)
-Router.post("/create-product", auth(["admin"]),  async (req, res) => {
+Router.post("/create-product", auth(["admin"]), async (req, res) => {
     try {
         const { name, price, sku, stock } = req.body;
 
@@ -202,6 +156,52 @@ Router.post("/create-product", auth(["admin"]),  async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+
+
+/**
+ * @swagger
+ * /products/{id}:
+ *   get:
+ *     summary: Get product by ID
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 5
+ *     responses:
+ *       200:
+ *         description: Product fetched successfully
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Server error
+ */
+
+
+//  Get single product
+Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const product = await Product.findByPk(id);
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+
+        res.json({ success: true, product });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+});
+
 
 
 
