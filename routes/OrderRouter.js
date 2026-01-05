@@ -95,6 +95,13 @@ Router.post("/", auth(["admin", "customer"]), async (req, res) => {
                 });
             }
 
+            if (quantity > product.stock) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Only ${product.stock} quantity left in stock for ${product.name}`
+                });
+            }
+
             const itemTotal = parseFloat(product.price) * quantity;
             totalAmount += itemTotal;
 
