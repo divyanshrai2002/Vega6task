@@ -5,7 +5,7 @@ const Product = require("./ProductSchema");
 const Order = require("./OrderSchema");
 const OrderItem = require("./OrderItemSchema");
 
-// USER- ORDER 
+
 User.hasMany(Order, {
     foreignKey: "user_id",
     as: "orders",
@@ -17,7 +17,6 @@ Order.belongsTo(User, {
     as: "user"
 });
 
-// ORDER - ORDER ITEM 
 Order.hasMany(OrderItem, {
     foreignKey: "order_id",
     as: "items",
@@ -29,7 +28,7 @@ OrderItem.belongsTo(Order, {
     as: "order"
 });
 
-// PRODUCT-- ORDER ITEM 
+
 Product.hasMany(OrderItem, {
     foreignKey: "product_id",
     as: "orderItems"

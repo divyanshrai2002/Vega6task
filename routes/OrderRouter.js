@@ -51,11 +51,11 @@ const { Order, OrderItem, Product } = require("../models");
  *         description: Server error
  */
 const Limiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 minute
+    windowMs: 1 * 60 * 1000,
     max: 5,
     message: "Too many  attempts, try again later"
 });
-//create new order
+
 Router.post("/", auth(["admin", "customer"]), async (req, res) => {
     try {
         const { items } = req.body;
@@ -112,7 +112,6 @@ Router.post("/", auth(["admin", "customer"]), async (req, res) => {
             });
         }
 
-        //  Create order
         const order = await Order.create({
             user_id: req.user.id,
             total_amount: totalAmount.toFixed(2),
@@ -193,7 +192,6 @@ Router.post("/", auth(["admin", "customer"]), async (req, res) => {
  *         description: Server error
  */
 
-//   List Orders
 Router.get("/", Limiter, auth(["admin", "customer"]), async (req, res) => {
     try {
         const { page = 1, limit = 10, status } = req.query;
@@ -201,7 +199,7 @@ Router.get("/", Limiter, auth(["admin", "customer"]), async (req, res) => {
 
         const where = {};
 
-        // Customers see only their orders
+
         if (req.user.role.toLowerCase() === "customer") {
             where.user_id = req.user.id;
         }
@@ -284,7 +282,6 @@ Router.get("/", Limiter, auth(["admin", "customer"]), async (req, res) => {
  */
 
 
-// GET /currency/convert
 Router.get(
     "/exchange-rate",
     auth(["admin", "customer"]),
@@ -352,7 +349,6 @@ Router.get(
  */
 
 
-// Get Single Order
 Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
     try {
         const order = await Order.findByPk(req.params.id, {
@@ -437,7 +433,6 @@ Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
  *         description: Server error
  */
 
-// change status of order
 Router.patch("/:id/status", auth(["admin", "customer"]), async (req, res) => {
     try {
         const { status } = req.body;
@@ -469,7 +464,7 @@ Router.patch("/:id/status", auth(["admin", "customer"]), async (req, res) => {
             });
         }
 
-        // Customer can only cancel
+
         if (
             req.user.role.toLowerCase() === "customer" &&
             status !== "CANCELLED"

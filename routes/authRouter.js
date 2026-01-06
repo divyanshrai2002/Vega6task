@@ -12,7 +12,6 @@ dotenv.config();
 
 const otpStore = {};
 
-// POST /auth/register
 /**
  * @swagger
  * /auth/register:
@@ -64,19 +63,19 @@ Router.post("/register", limiter, async (req, res) => {
         if (!username || !role || !email || !password)
             return res.status(400).json({ message: "All fields required" });
 
-        // Admin must have adminId
+
         if (role.toLowerCase() === "admin" && (!adminId || adminId.trim() === "")) {
             return res.status(400).json({ message: "Admin ID is required when role is Admin" });
         }
 
-        // Check if user exists
+
         const exists = await User.findOne({ where: { email } });
         if (exists) return res.status(409).json({ message: "User already exists" });
 
-        // Hash password
+
         const hashedPass = await bcrypt.hash(password, 10);
 
-        // Create user
+
         const user = await User.create({
             username,
             role,
@@ -163,7 +162,7 @@ Router.post("/register", limiter, async (req, res) => {
  */
 
 
-// POST /auth/login
+
 Router.post("/login", limiter, async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -172,19 +171,18 @@ Router.post("/login", limiter, async (req, res) => {
             return res.status(400).json({ message: "Email and password are required" });
         }
 
-        // Find user by email
         const user = await User.findOne({ where: { email } });
         if (!user) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
-        // Match password
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
-        // Create JWT token
+
         const token = jwt.sign(
             {
                 id: user.id,
@@ -193,7 +191,7 @@ Router.post("/login", limiter, async (req, res) => {
                 role: user.role
             },
             process.env.JWT_SECRET || "secretkey123",
-            { expiresIn: "2d" }
+            { expiresIn: "1d" }
         );
 
         res.status(200).json({

@@ -50,7 +50,6 @@ Router.get("/", auth(["admin", "customer"]), async (req, res) => {
 
         const offset = (parseInt(page) - 1) * parseInt(limit);
 
-        // Build where clause for filters
         const where = {};
         if (name) {
             where.name = { [Op.like]: `%${name}%` };
@@ -126,7 +125,6 @@ Router.get("/", auth(["admin", "customer"]), async (req, res) => {
  */
 
 
-//  Create new product (ADMIN only)
 Router.post("/create-product", auth(["admin"]), async (req, res) => {
     try {
         const { name, price, sku, stock } = req.body;
@@ -250,7 +248,6 @@ Router.get("/:id", auth(["admin", "customer"]), async (req, res) => {
  *         description: Server error
  */
 
-// PUT /products/:id - Update product (ADMIN only)
 Router.put("/:id", auth(["admin"]), async (req, res) => {
     try {
         const { id } = req.params;
